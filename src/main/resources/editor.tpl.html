@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Editor</title>
+	<script type="text/javascript">
+		window.addEventListener('load',function(){
+	
+		});
+	
+		// 
+		function $(id) {
+			document.getElementById(id);
+		}
+
+	</script>
+	<style type="text/css">
+		.hide { 
+			border:none; position:absolute; left:0; top:0; height:0; width:0; margin:0; padding:0; 
+		}
+	</style>	
+</head>
+<body>
+<div>
+	<div>
+	
+	</div>
+	<div>
+		<form>
+			<h2>Create Page</h2>
+			<h2>Create Update</h2>
+			<button>Save</button><button>Export</button>
+			<input />
+			<input />
+			<select><option></option></select>
+			<div contenteditable="true"></div>
+			<textarea></textarea>
+		</form>
+	</div>
+	<div>
+		<h2>Create Templates</h2>
+	</div>
+	<div>
+		<h2>Manage Photo</h2>
+		<div>
+			<input id="d-itext-photo-search-{{secure-hashed-id}}" name="" />
+		</div>
+		<div id="d-">
+			
+		</div>
+	</div>
+
+
+
+</div>
+<div class="hide">
+	<iframe id="d-iframe-catcher-{{secure-hashed-id}}" name="d-iframe-catcher-{{secure-hashed-id}}" class="hide" />
+</div>
+</body>
+</html>
