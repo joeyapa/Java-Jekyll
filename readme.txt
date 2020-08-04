@@ -33,4 +33,6 @@ COMPONENT
 # Schema
 
 
+Variable replacement
+Looping
 
