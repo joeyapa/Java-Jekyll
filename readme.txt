@@ -3,13 +3,13 @@ Java-Jekyll
 ## 
 A java implementation of which is inspired by Jekyll.  
 
-## History
+##History
 
-## Task
+##Task
 
 
 
-# Primary components
+#Primary components
 
 
 
@@ -31,4 +31,6 @@ COMPONENT
 - This are snippet of items found in the 
 
 # Schema
+
+
 

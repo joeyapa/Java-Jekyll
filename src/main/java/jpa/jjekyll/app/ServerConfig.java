@@ -1,4 +1,4 @@
-package jpa.jjekyll;
+package jpa.jjekyll.app;
 
 import java.util.ArrayList;
 import java.util.List;

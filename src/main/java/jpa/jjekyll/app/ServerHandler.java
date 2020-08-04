@@ -1,16 +1,24 @@
-package jpa.jjekyll;
+package jpa.jjekyll.app;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+@SuppressWarnings("restriction")
 public class ServerHandler implements HttpHandler {
 	private static final Logger LOG = Logger.getLogger( ServerHandler.class.getName() );
 	
@@ -55,7 +63,7 @@ public class ServerHandler implements HttpHandler {
 		Map<String,String> query = this.queryToMap(t.getRequestURI().getQuery());					
 		
 		if( isPost ) {
-			String sb = FileHelper.getStringInputStream(t.getRequestBody());
+			String sb = getString(t.getRequestBody());
 			if( sb!=null && !sb.isEmpty() ) {
 				query.putAll(this.queryToMap(sb));
 			}			
@@ -141,14 +149,14 @@ public class ServerHandler implements HttpHandler {
 		if( config.isCacheStaticURI() ) {
 			content = staticURIContent.get(path);
 			if( content == null ) {
-				content = FileHelper.getFileContent(path, null);				
+				content = getStringInputStream(path);				
 			}
 			if( content != null ) {
 				staticURIContent.put(path, content);
 			}								
 		}
 		else {
-			content = FileHelper.getFileContent(path, null);
+			content = getStringInputStream(path);
 		}
 		
 		// 6. Flag marked null content
@@ -157,5 +165,31 @@ public class ServerHandler implements HttpHandler {
 		}
 					
 		return content;	 
+	}
+	
+	/**
+	 * 
+	 * @param path
+	 * @return
+	 */
+	private String getStringInputStream(String path){
+		StringBuilder sb = new StringBuilder();
+		try {
+			List<String> lines = Files.readAllLines(Paths.get(path));		
+			if( lines!=null ) {
+				for(String s : lines) {
+					sb.append(s);	
+				}			
+			}
+		} catch(Exception e) {
+			LOG.severe(e.getMessage());
+			e.printStackTrace();
+		}
+		
+		return sb.toString();		
+	}
+	
+	private String getString(InputStream is) {
+		return new BufferedReader(new InputStreamReader(is)).lines().parallel().collect(Collectors.joining("\n"));		
 	}
 }

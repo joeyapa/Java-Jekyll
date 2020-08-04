@@ -1,4 +1,4 @@
-package jpa.jjekyll;
+package jpa.jjekyll.app;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
