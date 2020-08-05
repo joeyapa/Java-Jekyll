@@ -90,7 +90,7 @@ public class ServerHandler implements HttpHandler {
 	 * Convert the query request to hash map 
 	 * 
 	 * @param query
-	 * @return
+0	 * @return
 	 */
 	private Map<String,String> queryToMap(String query){
 		Map<String,String> map = new HashMap<String,String>();
