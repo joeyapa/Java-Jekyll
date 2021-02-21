@@ -1,64 +1,29 @@
 package jpa.jjekyll.dao;
 
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
-import jpa.jjekyll.app.ServerHandler;
-import jpa.jjekyll.model.PageModel;
 
 public class Sqlite3Dao {
 	
-	private static Sqlite3Dao instance;
+	private static final Logger LOG = Logger.getLogger( Sqlite3Dao.class.getName() );
 	
-	private static final Logger LOG = Logger.getLogger( ServerHandler.class.getName() );
-	
-	private String jdbc = "default.db";
+	private String jdbc;
 	
 	private Connection conn;
 	
-	static {
-		getInstance().getConnection();
-	}
-
-	public static Sqlite3Dao getInstance() {
-		Sqlite3Dao newinstance = instance;
-		if( newinstance == null ) {
-			synchronized(Sqlite3Dao.class) {
-				newinstance = instance;
-				if( newinstance == null ) {
-					LOG.info("Generating Sqlite3Dao instance");
-					instance = newinstance = new Sqlite3Dao();
-				}
-			}
-		}
-		return newinstance;
-	}
-
-	public boolean insertPage(PageModel model) {
-		return true;
-	}
-	
-	public boolean updatePage(PageModel model) {
-		return true;
-	}
-	
-	public List<PageModel> listPages() {
-		List<PageModel> list = new ArrayList<PageModel>();
-		return list;
-	}
-
-	private Connection getConnection(){
+	protected Connection getConnection(){
 		return getConnection(this.jdbc);
 	}
 	
-	private Connection getConnection(String s) {
+	protected Connection getConnection(String s) {
 		try {
 			if( conn == null || conn.isClosed() ) {
 				Class.forName("org.sqlite.JDBC");
@@ -70,12 +35,28 @@ public class Sqlite3Dao {
 		}
 		return conn;
 	}
+
+	protected InputStream getBlob(String table, String field, String id) throws SQLException {
+		String sql = "SELECT " + field + " FROM " + table + " WHERE id = ?";
+		ResultSet rs = null;
+		InputStream in = null;
+        PreparedStatement pstmt = null;
+        pstmt = getFastConnection().prepareStatement(sql);
+        pstmt.setString(1, id);
+        rs = pstmt.executeQuery();
+        while( rs.next() ) {
+        	in = rs.getBinaryStream(field);
+        	break;
+        }
+        return in;
+        
+	}
 	
-	private Connection getFastConnection(){
+	protected Connection getFastConnection() {
 		return getConnection(this.jdbc);
 	}
 	
-	private Connection getFastConnection(String s) {		
+	protected Connection getFastConnection(String s) {		
 		try {
 			if( conn == null || conn.isClosed() ) {
 				Class.forName("org.sqlite.JDBC");
@@ -92,15 +73,20 @@ public class Sqlite3Dao {
 		return conn;
 	}
 	
-	private PreparedStatement prepareStatement(String sql) throws SQLException {
+	protected PreparedStatement prepareStatement(String sql) throws SQLException {
 		return conn.prepareStatement(sql);
 	}
 	
-	private void closeConnection(){
+	protected void closeConnection(){
 		closeConnection(null,null);
 	}
 	
-	private void closeConnection(PreparedStatement stmt, ResultSet rs){
+	/**
+	 * 
+	 * @param stmt
+	 * @param rs
+	 */
+	protected void closeConnection(PreparedStatement stmt, ResultSet rs){
 		try {
 			if( stmt!=null ) {			
 				stmt.close();			
@@ -121,7 +107,7 @@ public class Sqlite3Dao {
 	 * @param stmt
 	 * @param rs
 	 */
-	private void closeConnection(Statement stmt, ResultSet rs){
+	protected void closeConnection(Statement stmt, ResultSet rs){
 		try {
 			if( stmt!=null ) {			
 				stmt.close();			
@@ -137,8 +123,9 @@ public class Sqlite3Dao {
 		}
 	}
 	
-	private Sqlite3Dao() {
-		LOG.fine("Creating sqlite3 dao single instance.");
+	protected Sqlite3Dao(String jdbc) {		
+		LOG.fine("Creating sqlite3 dao.");
+		this.jdbc = jdbc;
 	}
 	
 }

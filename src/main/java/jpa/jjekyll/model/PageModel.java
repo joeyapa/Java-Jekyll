@@ -1,5 +1,13 @@
 package jpa.jjekyll.model;
 
-public class PageModel {
+/**
+ * 
+ * @author joeyapa
+ */
+public class PageModel extends BaseModel {
 
+	private static final long serialVersionUID = -1140830356061802667L;
+
+	
+	
 }

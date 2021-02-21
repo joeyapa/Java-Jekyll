@@ -6,62 +6,110 @@ import java.util.logging.Logger;
 
 import com.sun.net.httpserver.HttpServer;
 
+import jpa.jjekyll.helper.CommonHelper;
+
+/**
+ * Server main start-up to trigger the http server
+ * @author joeyapa
+ */
 @SuppressWarnings("restriction")
 public class Server {
 
 	private static final Logger LOG = Logger.getLogger( Server.class.getName() );
-		
+	
+	private static boolean isShuttingDown = false;
+	
 	private HttpServer httpServer;
-	private ServerConfig config;
+	
+	
 	
 	/**
 	 * Server main arguments
 	 * 
 	 * 0: configuration file path or 0 for no configuration  
 	 * 1: port number
-	 * 2: default root path
+	 * 2: context path
 	 * 
 	 * @param args
 	 */
-	public static void main(String[] args) {		
-		Server server = new Server();
-		ServerConfig config = server.getConfig();
-		
-		if( args!=null ) {			
+	public static void main(String[] args) {
+		int port = 80;
+		String contextpath = "/";
+		Server server = new Server();		
+		// 1. Arguments
+		if( args!=null && args.length > 0 ) {			
 			switch (args.length) {
 				case 1: 
-					config.setPort( Integer.valueOf(args[0]) );
+					port = Integer.valueOf(args[0]);
 					break;
 				case 2: 
-					config.setPort( Integer.valueOf(args[0]) );
-					config.setDirRoot( args[1] );
+					port = Integer.valueOf(args[0]);
+					contextpath = args[1];
 					break;
 				default:
-					config.setPort( 80 );
+					port = Integer.valueOf(args[0]);
+					contextpath = args[1];
+					LOG.warning("Excess configuration parameters.");
 					break;
 			}			
-		}		
-		server.start();		
+		}	
+		// 2. Start the server
+		server.start(port, contextpath);		
 	}
 	
-	public void start(){
+	/**
+	 * Starting threaded request
+	 */
+	public void start(int port, String contextpath) {
 		try {
-			LOG.info("Server start at port " + config.getPort());
-			httpServer = HttpServer.create(new InetSocketAddress(config.getPort()), 0);
-			httpServer.createContext("/", new ServerHandler());
+			LOG.info("Server start on port " + port + " at [" + contextpath +"]");
+			CommonHelper.writeFile("jjekyll.cmd", "jjekyll=starting");
+			
+			httpServer = HttpServer.create(new InetSocketAddress(port), 0);
+			httpServer.createContext(contextpath, new ServerHandler());
 			httpServer.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
 			httpServer.start();
-		} catch (IOException e) {
+			
+			CommonHelper.writeFile("jjekyll.cmd", "jjekyll=started");
+			
+			String cmd = CommonHelper.getFileAsString("jjekyll.cmd", "");
+			while( !"jjekyll=shutdown".equals(cmd) ) {
+				Thread.sleep(5000);
+				cmd = CommonHelper.getFileAsString("jjekyll.cmd", "");
+				switch( cmd ) {
+					case "jjekyll=off":
+						shutdown();
+						break;
+				}
+			}
+			
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}		
 	}
-
-	public ServerConfig getConfig() {		
-		return config = config==null ? new ServerConfig() : config;
+	
+	/**
+	 * 
+	 */
+	public void shutdown() {
+		CommonHelper.writeFile("jjekyll.cmd", "jjekyll=shuttingdown");
+		isShuttingDown = true;
+		httpServer.stop(0);
+		CommonHelper.writeFile("jjekyll.cmd", "jjekyll=shutdown");
 	}
-
-	public void setConfig(ServerConfig config) {
-		this.config = config;
+	
+	/**
+	 * 
+	 */
+	public void schema() {
+		
 	}
-
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static boolean isShuttingDown() {
+		return isShuttingDown;
+	}
 }

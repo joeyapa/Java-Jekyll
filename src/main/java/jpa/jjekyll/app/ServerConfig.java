@@ -3,6 +3,9 @@ package jpa.jjekyll.app;
 import java.util.ArrayList;
 import java.util.List;
 
+import jpa.jjekyll.common.ConstantCommon;
+import jpa.jjekyll.helper.CommonHelper;
+
 public class ServerConfig {
 	protected int port;	
 	protected String dirRoot;
@@ -12,11 +15,16 @@ public class ServerConfig {
 	protected List<String> staticURI;
 	protected List<String> dynamicURI;
 	
-	protected String pagehome;
+	protected String pageHome;
+	protected String pageLogin;
+	protected String pageEditor;
 	protected String page200;
 	protected String page404;
 	protected String page500;
+	protected String favicon;
 	
+	protected String loggerFilePath;
+	protected String loggerType;
 	protected String loggerLevel;
 	
 	protected boolean cacheStaticURI;
@@ -51,14 +59,28 @@ public class ServerConfig {
 		this.indexName = indexName;
 	}
 
-	public String getPagehome() {
-		return pagehome = pagehome==null 
-			? "<html><head></head><body><h1>Home page</h1></body></html>" 
-			: pagehome;
+	public String getPageHome() {
+		return pageHome==null ? CommonHelper.getFileAsString(ConstantCommon.HOME_TPL_DEFAULT) : pageHome;
 	}
 
-	public void setPagehome(String pagehome) {
-		this.pagehome = pagehome;
+	public void setPageHome(String pageHome) {
+		this.pageHome = pageHome;
+	}
+
+	public String getPageLogin() {
+		return pageLogin==null ? CommonHelper.getFileAsString(ConstantCommon.LOGIN_TPL_DEFAULT) : pageLogin;		
+	}
+
+	public void setPageLogin(String pageLogin) {
+		this.pageLogin = pageLogin;
+	}
+
+	public String getPageEditor() {
+		return pageEditor==null ? CommonHelper.getFileAsString(ConstantCommon.EDITOR_TPL_DEFAULT) : pageEditor;
+	}
+
+	public void setPageEditor(String pageEditor) {
+		this.pageEditor = pageEditor;
 	}
 
 	public String getPage200() {
@@ -88,10 +110,41 @@ public class ServerConfig {
 	public void setPage500(String page500) {
 		this.page500 = page500;
 	}
+	
+	public String getFavicon() {
+		return favicon;
+	}
+
+	public void setFavicon(String favicon) {
+		this.favicon = favicon;
+	}
+
+	
+	public String getLoggerFilePath() {
+		if( loggerFilePath==null ) {
+			loggerFilePath = ConstantCommon.LOG_TYPE_FILE_DEFAULT_PATH;
+		}
+		return loggerFilePath;
+	}
+
+	public void setLoggerFilePath(String loggerFilePath) {
+		this.loggerFilePath = loggerFilePath;
+	}
+
+	public String getLoggerType() {
+		if( loggerType==null ) {
+			loggerType = ConstantCommon.LOG_TYPE_CONSOLE;
+		}
+		return loggerType;
+	}
+
+	public void setLoggerType(String loggerType) {
+		this.loggerType = loggerType;
+	}
 
 	public String getLoggerLevel() {
 		if( loggerLevel==null ) {
-			loggerLevel = "INFO";
+			loggerLevel = ConstantCommon.LOG_LEVEL_INFO;
 		}
 		return loggerLevel.toUpperCase();
 	}
@@ -120,6 +173,10 @@ public class ServerConfig {
 
 	public void setStaticURI(List<String> staticURI) {
 		this.staticURI = staticURI;
+	}
+	
+	public void addStaticURI(String uri) {
+		getStaticURI().add(uri);
 	}
 	
 	public List<String> getDynamicURI() {
